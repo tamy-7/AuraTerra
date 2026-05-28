@@ -1,43 +1,46 @@
 <?php
 namespace Helpers;
 
+use Models\Usuario; // Importamos el modelo de Eloquent que creamos antes
+
 class UsuarioHelper
 {
-    private static $archivo = __DIR__ . '/../../data/usuarios.json';
-
+    // 1. Guardar Usuario automáticamente en MySQL
     public static function guardarUsuario($email, $nombre, $passwordHash)
     {
-        $usuarios = self::obtenerTodos();
-        foreach ($usuarios as $u) {
-            if ($u['email'] === $email) return false;
+        // Eloquent busca si ya existe el email de forma automática
+        $existe = Usuario::where('email', $email)->first();
+        if ($existe) {
+            return false; // Si ya existe, frena el registro
         }
-        $nuevo = [
-            'id' => count($usuarios) + 1,
-            'email' => $email,
-            'nombre' => $nombre,
+
+        // Si no existe, creamos el registro directamente en la base de datos
+        $nuevo = Usuario::create([
+            'email'    => $email,
+            'nombre'   => $nombre,
             'password' => $passwordHash,
-            'creado' => date('Y-m-d H:i:s')
-        ];
-        $usuarios[] = $nuevo;
-        file_put_contents(self::$archivo, json_encode($usuarios, JSON_PRETTY_PRINT));
-        return true;
+            'rol'      => 'usuario' // Rol por defecto
+        ]);
+
+        return $nuevo ? true : false;
     }
 
-    public static function obtenerTodos()
-    {
-        if (!file_exists(self::$archivo)) return [];
-        $contenido = file_get_contents(self::$archivo);
-        return json_decode($contenido, true) ?? [];
-    }
-
+    // 2. Autenticar Usuario consultando a MySQL
     public static function autenticar($email, $password)
     {
-        $usuarios = self::obtenerTodos();
-        foreach ($usuarios as $u) {
-            if ($u['email'] === $email && password_verify($password, $u['password'])) {
-                return $u;
-            }
+        // Buscamos al usuario por su email usando Eloquent
+        $usuario = Usuario::where('email', $email)->first();
+
+        // Si existe el usuario, verificamos que el hash de la base de datos coincida con la clave ingresada
+        if ($usuario && password_verify($password, $usuario->password)) {
+            // Devolvemos un array con los datos para no romper la estructura de la sesión que armó tu socio
+            return [
+                'id'     => $usuario->id,
+                'email'  => $usuario->email,
+                'nombre' => $usuario->nombre
+            ];
         }
-        return null;
+
+        return null; // Credenciales incorrectas
     }
 }
