@@ -110,7 +110,7 @@ function handleRegisterGet() {
                     window.location.href = '/auraTerraMayo/public/login';
                 });
             } else {
-                let errorMsg = 'Ocurrió un problema.';
+                let errorMsg = 'Ocurrió un problem.';
                 if(data.errors) errorMsg = Object.values(data.errors).join('\\n');
                 
                 Swal.fire({
@@ -124,7 +124,7 @@ function handleRegisterGet() {
         </script>
     </body>
     </html>
-    HTML;
+HTML;
     exit;
 }
 
@@ -193,6 +193,30 @@ function handleLoginGet() {
             .switch-text { margin-top: 25px; font-size: 0.9rem; color: #7f8c8d; }
             .btn-link { color: #27ae60; text-decoration: none; font-weight: bold; transition: color 0.2s; }
             .btn-link:hover { color: #219653; text-decoration: underline; }
+
+            /* --- ESTILOS COMPATIBLES PARA UBICAR EL OJITO --- */
+            .password-wrapper {
+                position: relative;
+                display: flex;
+                align-items: center;
+            }
+            .password-wrapper input {
+                padding-right: 45px;
+            }
+            .btn-toggle-password {
+                position: absolute;
+                right: 12px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1.2rem;
+                padding: 0;
+                line-height: 1;
+                user-select: none;
+            }
+            .btn-toggle-password:focus {
+                outline: none;
+            }
         </style>
     </head>
     <body>
@@ -205,13 +229,29 @@ function handleLoginGet() {
             <h2>Iniciar Sesión</h2>
             <form id="formLogin">
                 <div class="form-group"><label>Correo Electrónico</label><input type="email" name="email" placeholder="ejemplo@correo.com" required></div>
-                <div class="form-group"><label>Contraseña</label><input type="password" name="password" placeholder="Tu contraseña" required></div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" placeholder="Tu contraseña" required>
+                        <button type="button" id="togglePassword" class="btn-toggle-password">👁️</button>
+                    </div>
+                </div>
                 <button type="submit" class="btn-submit">Ingresar</button>
             </form>
             <p class="switch-text">¿No tenés cuenta todavía? <a href="/auraTerraMayo/public/register" class="btn-link">Registrate</a></p>
         </div>
 
         <script>
+        /* --- LÓGICA DE INTERRUPTOR PARA EL OJITO DE LA CLAVE --- */
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+
         document.getElementById('formLogin').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -247,7 +287,7 @@ function handleLoginGet() {
         </script>
     </body>
     </html>
-    HTML;
+HTML;
     exit;
 }
 
@@ -323,4 +363,4 @@ function handlePerfil() {
     header('Content-Type: application/json');
     echo json_encode(['ok' => true, 'user' => ['nombre' => $_SESSION['user_nombre'], 'email' => $_SESSION['user_email']]]);
     exit;
-}
+} 
