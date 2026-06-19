@@ -192,7 +192,32 @@ class AuthController {
             $passHash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $this->pdo->prepare("INSERT INTO usuarios (nombre, email, password, rol, estado) VALUES (?, ?, ?, ?, 'prueba')");
             $stmt->execute([$nombre, $email, $passHash, $rol]);
-            header('Location: /auraTerraMayo/login'); exit;
+            
+            // 🚀 REPARADO: Pantalla intermedia de registro exitoso antes de mandarlo a loguearse
+            ?>
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <title>Registro Completado</title>
+                <style>
+                    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #e0eccf 0%, #f9f6f0 50%, #fcdad1 100%); height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+                    .success-card { background: white; padding: 45px; border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,0.06); text-align: center; max-width: 450px; border-top: 4px solid #27ae60; }
+                </style>
+                <script>
+                    setTimeout(() => { window.location.href = '/auraTerraMayo/login'; }, 2200);
+                </script>
+            </head>
+            <body>
+                <div class="success-card">
+                    <span style="font-size:4.5rem; display:block; margin-bottom:12px;">🎉</span>
+                    <h2>¡Te has registrado con éxito!</h2>
+                    <p style="color:#718096; margin-top:10px;">Tu perfil perimetral educativo fue inicializado. Redirigiendo al panel de inicio de sesión para validar tus credenciales...</p>
+                </div>
+            </body>
+            </html>
+            <?php 
+            exit;
         } catch (\PDOException $e) { header('Location: /auraTerraMayo/register?err=1'); exit; }
     }
 

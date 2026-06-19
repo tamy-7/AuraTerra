@@ -1,14 +1,18 @@
 /**
  * AuraTerra - Sistema de Monitoreo Agroclimatológico
- * Script Maestro del Dashboard - Edición Premium Blindada Completa
+ * Script Maestro del Dashboard - Versión Premium de Producción Final 2026
  */
 
+// 🎨 Definición de colores base para la cuadrícula vertical de 5 días
 const COLORES_BASE_DIAS = ["#f7fafc", "#edf2f7", "#e2e8f0", "#cbd5e0", "#a0aec0"];
 
 let ROL_DE_SESION_ACTIVO_INTERNO = (typeof ROL_DE_SESION_ACTIVO !== 'undefined') ? ROL_DE_SESION_ACTIVO : 'agricultor';
 let ciudadActualCargada = "Crespo, Entre Ríos, AR";
 const URL_BASE_SISTEMA = (typeof BASE_URL_PROYECTO !== 'undefined') ? BASE_URL_PROYECTO : '/auraTerraMayo';
 
+/**
+ * Registra las interacciones del operador y gestiona el desvío automático si salta el Anti-Bot
+ */
 async function registrarClickTelemétrico(componente) {
     try {
         const response = await fetch(`${URL_BASE_SISTEMA}/registrar_click`, {
@@ -19,7 +23,9 @@ async function registrarClickTelemétrico(componente) {
         if (response.status === 429) {
             window.location.href = `${URL_BASE_SISTEMA}/index.php?error_suspension_manual=1`;
         }
-    } catch(e) { console.log("Telemetría pasiva en espera..."); }
+    } catch(e) { 
+        console.log("Sincronización de telemetría en espera..."); 
+    }
 }
 
 const OBTENER_PREFIJO_FAV = () => {
@@ -34,17 +40,26 @@ function obtenerFavoritos() {
     } catch(e) { return []; }
 }
 
+/**
+ * Renderiza el desplegable de marcadores con el stopPropagation reparado en el lápiz
+ */
 function renderizarMenuFavoritos() {
-    const favs = obtenerFavoritos(); const contenedorMenu = document.getElementById('listaFavoritosContent');
-    if (!contenedorMenu) return; contenedorMenu.innerHTML = '';
-    if (favs.length === 0) { contenedorMenu.innerHTML = '<div style="color:#a0aec0; padding:5px; font-size:0.85rem; font-style:italic;">No hay favoritos</div>'; return; }
+    const favs = obtenerFavoritos(); 
+    const contenedorMenu = document.getElementById('listaFavoritosContent');
+    if (!contenedorMenu) return; 
+    contenedorMenu.innerHTML = '';
+    
+    if (favs.length === 0) { 
+        contenedorMenu.innerHTML = '<div style="color:#a0aec0; padding:5px; font-size:0.85rem; font-style:italic;">No hay favoritos</div>'; 
+        return; 
+    }
     
     favs.forEach((f, idx) => {
         contenedorMenu.innerHTML += `
             <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px dashed #edf2f7; gap:8px;">
                 <span onclick="cargarCiudadDesdeFavs('${f.busqueda}')" style="cursor:pointer; font-size:0.9rem; color:#2b6cb0; font-weight:600; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; flex:1;">📍 ${f.alias}</span>
-                <div style="display:flex; gap:8px; flex-shrink:0;">
-                    <span onclick="abrirModalEditarFavorito(event, idx)" style="cursor:pointer; color:#3182ce; font-weight:bold; font-size:0.9rem;" title="Editar Nombre">✏️</span>
+                <div style="display:flex; gap:8px; flex-shrink:0; align-items:center;">
+                    <span onclick="event.stopPropagation(); abrirModalEditarFavorito(event, ${idx})" style="cursor:pointer; color:#3182ce; font-weight:bold; font-size:0.95rem; padding: 0 4px;" title="Editar Nombre">✏️</span>
                     <span onclick="eliminarFavoritoIndividual(event, '${f.busqueda}')" style="cursor:pointer; color:#e53e3e; font-weight:bold; padding:0 2px;">❌</span>
                 </div>
             </div>`;
@@ -53,7 +68,7 @@ function renderizarMenuFavoritos() {
 
 let indiceFavoritoAEditarGlobal = null;
 function abrirModalEditarFavorito(event, index) {
-    event.stopPropagation();
+    if (event) event.stopPropagation();
     const favs = obtenerFavoritos();
     if (favs[index]) {
         indiceFavoritoAEditarGlobal = index;
@@ -78,10 +93,13 @@ function guardarEdicionFavorito() {
 }
 
 function toggleFavorito() {
-    let favs = obtenerFavoritos(); const index = favs.findIndex(f => f.busqueda.toLowerCase() === ciudadActualCargada.toLowerCase());
+    let favs = obtenerFavoritos(); 
+    const index = favs.findIndex(f => f.busqueda.toLowerCase() === ciudadActualCargada.toLowerCase());
     if (index > -1) {
-        favs.splice(index, 1); localStorage.setItem(OBTENER_PREFIJO_FAV(), JSON.stringify(favs));
-        actualizarEstrellaFavorito(ciudadActualCargada); renderizarMenuFavoritos();
+        favs.splice(index, 1); 
+        localStorage.setItem(OBTENER_PREFIJO_FAV(), JSON.stringify(favs));
+        actualizarEstrellaFavorito(ciudadActualCargada); 
+        renderizarMenuFavoritos();
         lanzarToast("⭐ Marcador removido de favoritos");
     } else {
         document.getElementById('inputModalAlias').value = formatearNombreLocalidad(ciudadActualCargada);
@@ -90,11 +108,19 @@ function toggleFavorito() {
 }
 
 function cargarCiudadDesdeFavs(ciudad) { 
-    ciudadActualCargada = ciudad; document.getElementById('inputCiudad').value = formatearNombreLocalidad(ciudad); 
-    registrarClickTelemétrico(`Buscó Ciudad: ${ciudad}`); ejecutarConsultasPorNombre(ciudad); 
+    ciudadActualCargada = city = ciudad; 
+    document.getElementById('inputCiudad').value = formatearNombreLocalidad(ciudad); 
+    registrarClickTelemétrico(`Buscó Ciudad: ${ciudad}`); 
+    ejecutarConsultasPorNombre(ciudad); 
 }
 
-function eliminarFavoritoIndividual(event, ciudad) { event.stopPropagation(); let favs = obtenerFavoritos().filter(f => f.busqueda.toLowerCase() !== ciudad.toLowerCase()); localStorage.setItem(OBTENER_PREFIJO_FAV(), JSON.stringify(favs)); renderizarMenuFavoritos(); actualizarEstrellaFavorito(ciudadActualCargada); }
+function eliminarFavoritoIndividual(event, ciudad) { 
+    event.stopPropagation(); 
+    let favs = obtenerFavoritos().filter(f => f.busqueda.toLowerCase() !== ciudad.toLowerCase()); 
+    localStorage.setItem(OBTENER_PREFIJO_FAV(), JSON.stringify(favs)); 
+    renderizarMenuFavoritos(); 
+    actualizarEstrellaFavorito(ciudadActualCargada); 
+}
 
 function actualizarEstrellaFavorito(ciudad) {
     const btnFav = document.getElementById('btnFav'); if (!btnFav) return;
@@ -110,6 +136,7 @@ function formatearNombreLocalidad(cadena) {
         if (i === a.length - 1 && txt.length <= 3) return txt.toUpperCase();
         return txt.replace(/\b\w/g, l => l.toUpperCase());
     });
+    // Limpieza regional para evitar la duplicidad de Paraná en Entre Ríos
     if (mapeado.length === 3 && mapeado[0] === "Paraná" && mapeado[1] === "Paraná") {
         mapeado[1] = "Entre Ríos";
     }
@@ -118,7 +145,8 @@ function formatearNombreLocalidad(cadena) {
 
 function lanzarToast(mensaje) {
     const toast = document.getElementById('toastApp'); if (!toast) return;
-    toast.innerText = mensaje; toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    toast.innerText = mensaje; toast.style.display = 'block'; 
+    setTimeout(() => { toast.style.display = 'none'; }, 3500);
 }
 
 function mostrarEfectoCargandoDatos() {
@@ -129,20 +157,24 @@ function mostrarEfectoCargandoDatos() {
 }
 
 function realizarBusquedaMeteorol() {
-    const inputCiudad = document.getElementById('inputCiudad'); if (!inputCiudad) return;
+    const inputCiudad = document.getElementById('inputCiudad'); if (!inputCiudad) return false;
     const texto = inputCiudad.value.trim();
     if (texto !== "") {
+        // Validation perimetral de los tres términos obligatorios
         if (texto.split(',').length !== 3) { 
             document.getElementById('modalErrorBuscador').classList.add('show'); 
             return false; 
         }
-        ciudadActualCargada = texto; mostrarEfectoCargandoDatos();
-        registrarClickTelemétrico(`Buscó Ciudad: ${texto}`); ejecutarConsultasPorNombre(texto);
+        ciudadActualCargada = texto; 
+        mostrarEfectoCargandoDatos();
+        registrarClickTelemétrico(`Buscó Ciudad: ${texto}`); 
+        ejecutarConsultasPorNombre(texto);
         return true;
     }
     return false;
 }
 
+// 🛠️ REPARADO: Capturador físico que anula el refresco del navegador antes de validar las comas
 function enclavarEscuchaTecladoEnter() {
     const inputCiudad = document.getElementById('inputCiudad');
     if (inputCiudad) {
@@ -171,7 +203,7 @@ async function consultarClimaActual(url) {
             <div class="temp-principal" style="font-size:5rem; font-weight:900; color:#1a202c; display:block; margin:5px 0;">${Math.round(clima.temperatura)}°C</div>
             <p style="text-transform:capitalize; font-weight:700; color:#2d3748; margin:2px 0;">${clima.descripcion}</p>
             <p style="font-size:0.9rem; color:#718096; margin:0;">💧 Humedad: ${clima.humedad}% | 💨 Viento: ${clima.viento} m/s</p>`;
-    } catch(e){ console.log("Sincronización de clima actual pasiva."); }
+    } catch(e){ console.log("Hilo de clima actual en espera de sesión..."); }
 }
 
 async function consultarPronostico(url) {
@@ -190,7 +222,6 @@ async function consultarPronostico(url) {
             
         const bLegal = document.getElementById('bloqueLegalFumigacion'); let htmlAlertasUnificadas = "";
 
-        // 🎪 RECUPERACIÓN COMPLETA DE TODA LA DATA EXCLUSIVA POR ROL SOLICITADA
         if (ROL_DE_SESION_ACTIVO_INTERNO === 'planificador') {
             document.getElementById('tituloDinamicoLegal').innerText = "⛺ Seguridad Estructural de Carpas";
             bLegal.innerHTML = vKmh > 18 ? "<span style='color:#e53e3e; font-weight:bold;'>🚫 RÁFAGAS ALARMANTES. Peligro estructural de montajes al aire libre.</span>" : "<span style='color:#27ae60; font-weight:bold;'>✅ VIENTOS CONTROLADOS: Estructuras seguras bajo resguardo perimetral.</span>";
@@ -212,21 +243,13 @@ async function consultarPronostico(url) {
         }
 
         if (vKmh > 15) {
-            htmlAlertasUnificadas += `
-                <div class="tip-item-premium" style="background:#fffaf0; padding:14px; border-radius:8px; border-left:5px solid #dd6b20;">
-                    <h4 style="color:#9c4221; margin:0 0 6px 0; font-size:1.15rem;">⚠️ Alerta por Inestabilidad Atmosférica</h4>
-                    <p style="margin:0; color:#744210; font-size:1.05rem;">Se proyectan ráfagas de viento inestables superiores a los límites estándar regionales.</p>
-                </div>`;
+            htmlAlertasUnificadas += `<div class="tip-item-premium" style="background:#fffaf0; padding:14px; border-radius:8px; border-left:5px solid #dd6b20;"><h4 style="color:#9c4221; margin:0 0 6px 0; font-size:1.15rem;">⚠️ Alerta por Inestabilidad Atmosférica</h4><p style="margin:0; color:#744210; font-size:1.05rem;">Se proyectan ráfagas de viento inestables superiores a los límites estándar regionales.</p></div>`;
         } else {
-            htmlAlertasUnificadas += `
-                <div class="tip-item-premium" style="background:#f0fff4; padding:14px; border-radius:8px; border-left:5px solid #27ae60;">
-                    <h4 style="color:#22543d; margin:0 0 6px 0; font-size:1.15rem;">☀️ Ventana Operativa Libre de Riesgos</h4>
-                    <p style="margin:0; color:#1a4731; font-size:1.05rem;">Condiciones excelentes para actividades territoriales de precisión para las próximas 72hs.</p>
-                </div>`;
+            htmlAlertasUnificadas += `<div class="tip-item-premium" style="background:#f0fff4; padding:14px; border-radius:8px; border-left:5px solid #27ae60;"><h4 style="color:#22543d; margin:0 0 6px 0; font-size:1.15rem;">☀️ Ventana Operativa Libre de Riesgos</h4><p style="margin:0; color:#1a4731; font-size:1.05rem;">Condiciones excelentes para actividades territoriales de precisión para las próximas 72hs.</p></div>`;
         }
         document.getElementById('bloqueAlertas').innerHTML = htmlAlertasUnificadas;
 
-        // ✨ RESTAURACIÓN DE LA PLANIFICACIÓN COMPLETA CON EL "TIP DIFERENCIAL" SOLICITADO
+        // 🎪 ENRIQUECIDO: Datos técnicos robustos de siembra y el Tip Diferencial completo recuperados
         const bFiltro = document.getElementById('bloqueFiltroDinamicoRol');
         if (ROL_DE_SESION_ACTIVO_INTERNO === 'planificador') {
             document.getElementById('tituloFiltroDinamicoRol').innerText = "🎪 Planificación Operativa AuraEvents";
@@ -235,7 +258,7 @@ async function consultarPronostico(url) {
                     <div class="tip-item-premium"><b>📸 Logística Lumínica:</b> Ventana de Hora Dorada ideal para filmaciones aéreas y capturas exteriores proyectada a las 17:15 hs.</div>
                     <div class="tip-item-premium"><b>🌡️ Curva de Confort:</b> Curvas térmicas estables. No se requiere pre-encendido de calefacción forzada en carpas.</div>
                     <div class="tip-item-premium"><b>📐 Rigidez de Sujeciones:</b> Magnitud de vientos moderada. Utilice anclajes estándar; suspenda el despliegue de cartelería vertical o banners a más de 4 metros de altura para evitar resistencia de vela.</div>
-                    <div class="tip-item-premium" style="color:#2b6cb0; font-weight:700; background:#ebf8ff; padding:8px; border-radius:6px; margin-top:8px;">💡 Tip Diferencial: Realizar las pruebas acústicas de sonido antes del cambio rotativo perimetral del viento previsto para la noche.</div>
+                    <div class="tip-item-premium" style="color:#2b6cb0; font-weight:700; background:#ebf8ff; padding:10px; border-radius:8px; margin-top:8px;">💡 Tip Diferencial: Realizar las pruebas acústicas de sonido antes del cambio rotativo perimetral del viento previsto para la noche.</div>
                 </div>`;
         } else {
             document.getElementById('tituloFiltroDinamicoRol').innerText = "🌱 Planificación de Cultivo Sugerido";
@@ -244,8 +267,8 @@ async function consultarPronostico(url) {
                     <div class="tip-item-premium"><b>🚜 Ventana de Labor:</b> Capacidad de campo en rango óptimo. Ventana excelente para la implantación inmediata de Trigo (Ciclo Largo / Intermedio).</div>
                     <div class="tip-item-premium"><b>🌱 Variedades y Semillas Recomendadas para Entre Ríos:</b> Para aprovechar el suelo del día de hoy en la región, se sugiere la siembra de **Trigo pan (variedades de ciclo largo)** o la incorporación alternativa de **Arveja** como cultivo de cobertura invernal para fijación biológica de nitrógeno.</div>
                     <div class="tip-item-premium"><b>🛡️ Manejo Sanitario:</b> Alertas de Humedad Relativa propicias para esporulación fúngica. Programe aplicaciones de fungicidas sistémicos en las primeras horas de la mañana.</div>
-                    <div class="tip-item-premium"><b>🧪 Nutrición Estructural:</b> Baja tasa de volatilización de nitrógeno por cobertura térmica de hoy. Ventana ideal para fertilización con urea incorporada.</div>
-                    <div class="tip-item-premium" style="color:#2f855a; font-weight:700; background:#f0fff4; padding:8px; border-radius:6px; margin-top:8px;">💡 Tip Diferencial: Evite el tránsito pesado en cabeceras de lotes húmedos para mitigar la compactación subsuperficial del suelo de Entre Ríos.</div>
+                    <div class="tip-item-premium"><b>🧪 Nutrición Estructural:</b> Baja tasa de volatilización de nitrógeno por cobertura térmica estable. Ventana ideal para fertilización con urea incorporada.</div>
+                    <div class="tip-item-premium" style="color:#2f855a; font-weight:700; background:#f0fff4; padding:10px; border-radius:8px; margin-top:8px;">💡 Tip Diferencial: Evite el tránsito pesado en cabeceras de lotes húmedos para mitigar la compactación subsuperficial del suelo de Entre Ríos.</div>
                 </div>`;
         }
         
@@ -261,7 +284,7 @@ async function consultarPronostico(url) {
             html += `</div>`; bPron.innerHTML += html;
         });
         actualizarEstrellaFavorito(ciudadActualCargada);
-    } catch(e){ console.log("Sincronización de pronóstico pasiva."); }
+    } catch(e){ console.log("Procesamiento pasivo de tendencias extendidas."); }
 }
 
 function activarGeolocalizacionGPS() {
@@ -281,12 +304,13 @@ function activarGeolocalizacionGPS() {
     }
 }
 
-// 🛡️ ENYECTAMOS LOS LISTENERS INDEPENDIENTES DE FORMA SEGURA ARRIBA DE TODO EN EL DOM
+/**
+ * Enclavamiento y ruteo centralizado de listeners DOM
+ */
 window.addEventListener('DOMContentLoaded', () => {
     enclavarEscuchaTecladoEnter();
     renderizarMenuFavoritos();
     
-    // Configuración definitiva del botón de búsqueda y favoritos
     document.getElementById('btnBuscar').addEventListener('click', realizarBusquedaMeteorol);
     document.getElementById('btnFav').addEventListener('click', toggleFavorito);
     
@@ -297,7 +321,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const btnConfirmarEditarAlias = document.getElementById('btnConfirmarEditarAlias');
     if (btnConfirmarEditarAlias) { btnConfirmarEditarAlias.addEventListener('click', guardarEdicionFavorito); }
 
-    // Interceptor global de modales por Enter
+    // Interceptor dinámico para cerrar modales con la tecla Enter
     window.addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
             const mError = document.getElementById('modalErrorBuscador');
@@ -316,7 +340,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (btnCerrarModalError) { btnCerrarModalError.addEventListener('click', () => { document.getElementById('modalErrorBuscador').classList.remove('show'); }); }
     
-    // 🛠️ REPARADO GLOBAL: El logo corporativo e institucional vuelve a abrir el modal con normalidad
+    // Configuración interactiva del Imagotipo Superior Corporativo
     const btnLogo = document.getElementById('btnLogoInfo'); 
     const modalInfo = document.getElementById('modalInfoCorporativo'); 
     const btnCerrarInfo = document.getElementById('btnCerrarModalInfo');
@@ -332,7 +356,6 @@ window.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('btnCancelarAlias').addEventListener('click', () => { document.getElementById('modalAgregarAliasFav').classList.remove('show'); });
     
-    // 🛠️ REPARADO GLOBAL: Confirmar y guardar marcadores favoritos
     document.getElementById('btnConfirmarAlias').addEventListener('click', () => {
         let favs = obtenerFavoritos(); const val = document.getElementById('inputModalAlias').value.trim();
         if(val) { 
@@ -345,6 +368,6 @@ window.addEventListener('DOMContentLoaded', () => {
         actualizarEstrellaFavorito(ciudadActualCargada);
     });
 
-    // Lanzamos las consultas iniciales controladas
+    // Carga analítica por defecto inicial
     ejecutarConsultasPorNombre(ciudadActualCargada);
 });

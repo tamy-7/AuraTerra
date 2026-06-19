@@ -183,11 +183,33 @@ $rolUsuario = strtolower(trim($_SESSION['user_rol'] ?? 'agricultor'));
         <div class="modal-alert-card" style="text-align:center;">
             <h3 style="color:#e53e3e; margin-top:0;">⚠️ Formato de Búsqueda Inválido</h3>
             <p style="color:#4a5568; line-height:1.5; text-align:left;">Por favor, ingrese la localidad respetando la estructura obligatoria de tres términos separados por comas:<br><br><b>Ciudad, Provincia, País</b><br><br><i>Ejemplo: Crespo, Entre Ríos, AR</i></p>
-            <button id="btnCerrarModalError" class="btn-modal-confirm" style="background:#e53e3e; width:100%;">Entendido</button>
+            <button id="btnCerrarModalError" class="btn-premium-accion" style="background:#e53e3e; width:100%; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold;">Entendido</button>
+        </div>
+    </div>
+
+    <div class="modal-alert-overlay" id="modalAgregarAliasFav">
+        <div class="modal-alert-card">
+            <h3>⭐ Asignar Alias Favorito</h3>
+            <p style="color:#718096; font-size:0.85rem; margin-bottom:10px;">Ingresá una etiqueta descriptiva para este lote:</p>
+            <input type="text" id="inputModalAlias" class="input-modal-premium" placeholder="Ej: Mi Campo Principal">
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px;">
+                <button id="btnCancelarAlias" style="background:#e2e8f0; color:#4a5568; padding:10px 15px; border-radius:6px; border:none; cursor:pointer;">Cancelar</button>
+                <button id="btnConfirmarAlias" style="background:#3182ce; color:white; padding:10px 15px; border-radius:6px; border:none; cursor:pointer;">Guardar Marcador</button>
+            </div>
         </div>
     </div>
                     
-    <div class="modal-alert-overlay" id="modalEditarAliasFav"><div class="modal-alert-card"><h3>📝 Editar Nombre</h3><input type="text" id="inputModalEditarAlias" class="input-modal-premium"><button id="btnConfirmarEditarAlias" class="btn-modal-confirm">Actualizar</button></div></div>
+    <div class="modal-alert-overlay" id="modalEditarAliasFav">
+        <div class="modal-alert-card">
+            <h3>📝 Renombrar Alias de Favorito</h3>
+            <p style="color:#718096; font-size:0.85rem; margin-bottom:10px;">Modificá el nombre identificatorio de esta localidad guardada:</p>
+            <input type="text" id="inputModalEditarAlias" class="input-modal-premium" style="width:100%; padding:12px; border:2px solid #cbd5e0; border-radius:8px; outline:none; margin:10px 0;">
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px;">
+                <button onclick="document.getElementById('modalEditarAliasFav').classList.remove('show')" style="background:#e2e8f0; color:#4a5568; padding:10px 15px; border-radius:6px; border:none; cursor:pointer;">Cancelar</button>
+                <button id="btnConfirmarEditarAlias" style="background:#27ae60; color:white; padding:10px 15px; border-radius:6px; border:none; cursor:pointer;">Actualizar Nombre</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const BASE_URL_PROYECTO = "/auraTerraMayo";
