@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-// Evitamos colisiones de hilos de datos si XAMPP destruyó la sesión en segundo plano
 if (session_status() === PHP_SESSION_NONE) {
     @session_start();
 }
@@ -51,8 +50,8 @@ $path = str_replace(['/auraTerraMayo/public', '/auraTerraMayo'], '', $path);
 $path = '/' . ltrim($path, '/');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-// Si viene con bandera de bot o la IP está en la lista negra, cortamos el hilo y mostramos la plantilla premium
-if (!$limiter->check($clientIP) || isset($_GET['error_suspension_manual'])) {
+// Interceptor perimetral contra Bots y Cuentas de usuarios suspendidas
+if (!$limiter->check($clientIP) || isset($_GET['error_suspension_manual']) || (isset($_SESSION['user_estado']) && $_SESSION['user_estado'] === 'suspendido')) {
     ?>
     <!DOCTYPE html>
     <html lang="es">
@@ -82,15 +81,81 @@ if (!$limiter->check($clientIP) || isset($_GET['error_suspension_manual'])) {
 $authController = new \Src\Controllers\AuthController();
 $climaController = new \Src\Controllers\ClimaController();
 
+// 🏠 RENDIMIENTO DE LA BIENVENIDA ORIGINAL AL COLOCAR AURATERRAMAYO SOLO
+if ($method === 'GET' && ($path === '/' || $path === '/index.php' || $path === '')) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>AuraTerra - Infraestructura Climática</title>
+        <style>
+            * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', sans-serif; }
+            body { background: linear-gradient(135deg, #f4f7f6 0%, #e9eff1 100%); color: #2d3748; line-height: 1.6; scroll-behavior: smooth; }
+            .hero { text-align: center; padding: 60px 20px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+            .logo-header-clean { background-color: #2c3e50; color: #ffffff; font-weight: 900; font-size: 2.2rem; padding: 12px 28px; border-radius: 10px; display: inline-block; margin-bottom: 20px; letter-spacing: 1px; }
+            .logo-header-clean span { color: #27ae60; }
+            .hero p { font-size: 1.15rem; color: #4a5568; max-width: 700px; margin: 0 auto 10px; }
+            .actions-row { display: flex; gap: 15px; justify-content: center; margin-top: 15px; }
+            .btn { padding: 14px 32px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 1.05rem; transition: transform 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+            .btn:hover { transform: translateY(-2px); }
+            .btn-primary { background: #3182ce; color: white; }
+            .btn-secondary { background: #27ae60; color: white; }
+            .btn-jump-home { background: none; border: none; color: #3182ce; font-weight: bold; font-size: 1.05rem; cursor: pointer; margin-top: 15px; outline: none; }
+            .section { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 25px; }
+            .card { background: white; padding: 30px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; border-top: 4px solid #3182ce; }
+            .card h3 { color: #2b6cb0; margin-bottom: 12px; font-size: 1.3rem; }
+            .filosofia-box { background: linear-gradient(135deg, #ebf8ff 0%, #fff5f5 100%); padding: 35px; border-radius: 14px; border-left: 6px solid #3182ce; }
+            footer { text-align: center; padding: 30px; color: #a0aec0; font-size: 0.95rem; border-top: 1px solid #e2e8f0; margin-top: 50px; background: white; }
+        </style>
+    </head>
+    <body>
+        <div class="hero">
+            <div class="logo-header-clean">Aura<span>Terra</span></div>
+            <p style="font-style: italic; color:#718096; font-size: 1.2rem;">"Los 21gr del timo que acompañan el éxito de la organización de tu actividad al aire libre"</p>
+            <div class="actions-row">
+                <a href="/auraTerraMayo/login" class="btn btn-primary">Iniciar Sesión 👤</a>
+                <a href="/auraTerraMayo/register" class="btn btn-secondary">Registrarse 🌾</a>
+            </div>
+            <button class="btn-jump-home" id="btnSaltarFilosofiaHome">Descubrir los secretos de AuraTerra 🔽</button>
+        </div>
+        <div class="section" id="seccionFilosofiaDescubrir">
+            <div class="filosofia-box">
+                <h3 style="color:#2c5282; margin-bottom:12px;">✨ El Secreto detrás de nuestro Eslogan: El Timo, el Aura y la Felicidad</h3>
+                <p style="font-size:1.1rem; color:#2d3748; text-align:justify; line-height: 1.6;">
+                    En la antigua medicina, el alma pesa exactamente 21 gramos, y el timo es el centro operativo de la felicidad. AuraTerra unifica la atmósfera terrestre con tu paz interior (Aura), asegurando que el clima juegue a tu favor para mantener tus actividades a salvo.
+                </p>
+            </div>
+        </div>
+        <div class="section">
+            <div class="grid">
+                <div class="card" style="border-top-color: #38a169;">
+                    <h3>🌾 AuraTerra Agroclimatológica</h3>
+                    <p>Mapeo perimetral para pulverizaciones legales en Entre Ríos, resguardando la implantación de Trigo o Arveja.</p>
+                </div>
+                <div class="card" style="border-top-color: #3182ce;">
+                    <h3>🎪 AuraTerra Events</h3>
+                    <p>Predicción logística a 72 horas para carpas, sonido exterior y cálculo preciso de la Hora Dorada lumínica.</p>
+                </div>
+            </div>
+        </div>
+        <footer>Folmer, Javier | Gareis, Soledad | Godoy, Tamara &copy; 2026</footer>
+        <script>
+            document.getElementById('btnSaltarFilosofiaHome').addEventListener('click', function() {
+                document.getElementById('seccionFilosofiaDescubrir').scrollIntoView({ behavior: 'smooth' });
+            });
+        </script>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 if ($path === '/registrar_click') { require_once __DIR__ . '/registrar_click.php'; }
 elseif ($path === '/login') { $method === 'POST' ? $authController->handleLoginPost() : $authController->handleLoginGet(); }
 elseif ($path === '/register') { $method === 'POST' ? $authController->handleOpenRegisterPost() : $authController->handleRegisterGet(); }
 elseif ($path === '/logout') { $authController->handleLogout(); }
 elseif ($path === '/clima/actual') { $climaController->handleClimaActual(); }
 elseif ($path === '/clima/pronostico') { $climaController->handleClimaPronostico(); }
-else { 
-    if ($method === 'GET' && ($path === '/' || $path === '/index.php' || $path === '')) {
-        header('Location: /auraTerraMayo/login'); exit;
-    }
-    require_once __DIR__ . '/dashboard.php'; exit; 
-}
+else { require_once __DIR__ . '/dashboard.php'; exit; }

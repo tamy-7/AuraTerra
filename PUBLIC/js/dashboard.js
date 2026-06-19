@@ -1,6 +1,6 @@
 /**
  * AuraTerra - Sistema de Monitoreo Agroclimatológico
- * Script Maestro del Dashboard - Versión Enriquecida de Producción Final
+ * Script Maestro del Dashboard - Edición Premium Blindada Completa
  */
 
 const COLORES_BASE_DIAS = ["#f7fafc", "#edf2f7", "#e2e8f0", "#cbd5e0", "#a0aec0"];
@@ -19,7 +19,7 @@ async function registrarClickTelemétrico(componente) {
         if (response.status === 429) {
             window.location.href = `${URL_BASE_SISTEMA}/index.php?error_suspension_manual=1`;
         }
-    } catch(e) { window.location.href = `${URL_BASE_SISTEMA}/index.php?error_suspension_manual=1`; }
+    } catch(e) { console.log("Telemetría pasiva en espera..."); }
 }
 
 const OBTENER_PREFIJO_FAV = () => {
@@ -44,7 +44,7 @@ function renderizarMenuFavoritos() {
             <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px dashed #edf2f7; gap:8px;">
                 <span onclick="cargarCiudadDesdeFavs('${f.busqueda}')" style="cursor:pointer; font-size:0.9rem; color:#2b6cb0; font-weight:600; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; flex:1;">📍 ${f.alias}</span>
                 <div style="display:flex; gap:8px; flex-shrink:0;">
-                    <span onclick="abrirModalEditarFavorito(event, ${idx})" style="cursor:pointer; color:#3182ce; font-weight:bold; font-size:0.9rem;" title="Editar Nombre">✏️</span>
+                    <span onclick="abrirModalEditarFavorito(event, idx)" style="cursor:pointer; color:#3182ce; font-weight:bold; font-size:0.9rem;" title="Editar Nombre">✏️</span>
                     <span onclick="eliminarFavoritoIndividual(event, '${f.busqueda}')" style="cursor:pointer; color:#e53e3e; font-weight:bold; padding:0 2px;">❌</span>
                 </div>
             </div>`;
@@ -132,7 +132,6 @@ function realizarBusquedaMeteorol() {
     const inputCiudad = document.getElementById('inputCiudad'); if (!inputCiudad) return;
     const texto = inputCiudad.value.trim();
     if (texto !== "") {
-        // ✅ FILTRO DE SEGURIDAD ABSOLUTO: Si no se detectan las comas se interrumpe y salta el modal
         if (texto.split(',').length !== 3) { 
             document.getElementById('modalErrorBuscador').classList.add('show'); 
             return false; 
@@ -144,21 +143,14 @@ function realizarBusquedaMeteorol() {
     return false;
 }
 
-function realizarBusquedaMeteorolPorEnter(event) {
-    // ✅ CAPTURA MAESTRA DE ENTER: Frena al navegador antes de procesar el evento del DOM
-    event.preventDefault();
-    event.stopPropagation();
-    realizarBusquedaMeteorol();
-}
-
 function enclavarEscuchaTecladoEnter() {
     const inputCiudad = document.getElementById('inputCiudad');
     if (inputCiudad) {
-        // Eliminamos listeners previos duplicados
-        inputCiudad.removeEventListener('keydown', realizarBusquedaMeteorolPorEnter);
         inputCiudad.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                realizarBusquedaMeteorolPorEnter(e);
+                e.preventDefault();
+                e.stopPropagation();
+                realizarBusquedaMeteorol();
             }
         });
     }
@@ -179,7 +171,7 @@ async function consultarClimaActual(url) {
             <div class="temp-principal" style="font-size:5rem; font-weight:900; color:#1a202c; display:block; margin:5px 0;">${Math.round(clima.temperatura)}°C</div>
             <p style="text-transform:capitalize; font-weight:700; color:#2d3748; margin:2px 0;">${clima.descripcion}</p>
             <p style="font-size:0.9rem; color:#718096; margin:0;">💧 Humedad: ${clima.humedad}% | 💨 Viento: ${clima.viento} m/s</p>`;
-    } catch(e){}
+    } catch(e){ console.log("Sincronización de clima actual pasiva."); }
 }
 
 async function consultarPronostico(url) {
@@ -198,7 +190,7 @@ async function consultarPronostico(url) {
             
         const bLegal = document.getElementById('bloqueLegalFumigacion'); let htmlAlertasUnificadas = "";
 
-        // 🎪 RESTAURACIÓN COMPLETA DE TEXTOS PREMIUM EXCLUSIVOS POR ROL ( image_754186.png )
+        // 🎪 RECUPERACIÓN COMPLETA DE TODA LA DATA EXCLUSIVA POR ROL SOLICITADA
         if (ROL_DE_SESION_ACTIVO_INTERNO === 'planificador') {
             document.getElementById('tituloDinamicoLegal').innerText = "⛺ Seguridad Estructural de Carpas";
             bLegal.innerHTML = vKmh > 18 ? "<span style='color:#e53e3e; font-weight:bold;'>🚫 RÁFAGAS ALARMANTES. Peligro estructural de montajes al aire libre.</span>" : "<span style='color:#27ae60; font-weight:bold;'>✅ VIENTOS CONTROLADOS: Estructuras seguras bajo resguardo perimetral.</span>";
@@ -234,7 +226,7 @@ async function consultarPronostico(url) {
         }
         document.getElementById('bloqueAlertas').innerHTML = htmlAlertasUnificadas;
 
-        // ✨ RESTAURACIÓN DE LA PLANIFICACIÓN COMPLETA CON EL "TIP DIFERENCIAL" ( Solicitado )
+        // ✨ RESTAURACIÓN DE LA PLANIFICACIÓN COMPLETA CON EL "TIP DIFERENCIAL" SOLICITADO
         const bFiltro = document.getElementById('bloqueFiltroDinamicoRol');
         if (ROL_DE_SESION_ACTIVO_INTERNO === 'planificador') {
             document.getElementById('tituloFiltroDinamicoRol').innerText = "🎪 Planificación Operativa AuraEvents";
@@ -250,7 +242,7 @@ async function consultarPronostico(url) {
             bFiltro.innerHTML = `
                 <div style="color:#4a5568;">
                     <div class="tip-item-premium"><b>🚜 Ventana de Labor:</b> Capacidad de campo en rango óptimo. Ventana excelente para la implantación inmediata de Trigo (Ciclo Largo / Intermedio).</div>
-                    <div class="tip-item-premium"><b>🌱 Variedades y Semillas Recomendadas para Entre Ríos:</b> Para aprovechar el suelo del día de hoy en la región, se sugería la siembra de **Trigo pan (variedades de ciclo largo)** o la incorporación alternativa de **Arveja** como cultivo de cobertura invernal para fijación biológica de nitrógeno.</div>
+                    <div class="tip-item-premium"><b>🌱 Variedades y Semillas Recomendadas para Entre Ríos:</b> Para aprovechar el suelo del día de hoy en la región, se sugiere la siembra de **Trigo pan (variedades de ciclo largo)** o la incorporación alternativa de **Arveja** como cultivo de cobertura invernal para fijación biológica de nitrógeno.</div>
                     <div class="tip-item-premium"><b>🛡️ Manejo Sanitario:</b> Alertas de Humedad Relativa propicias para esporulación fúngica. Programe aplicaciones de fungicidas sistémicos en las primeras horas de la mañana.</div>
                     <div class="tip-item-premium"><b>🧪 Nutrición Estructural:</b> Baja tasa de volatilización de nitrógeno por cobertura térmica de hoy. Ventana ideal para fertilización con urea incorporada.</div>
                     <div class="tip-item-premium" style="color:#2f855a; font-weight:700; background:#f0fff4; padding:8px; border-radius:6px; margin-top:8px;">💡 Tip Diferencial: Evite el tránsito pesado en cabeceras de lotes húmedos para mitigar la compactación subsuperficial del suelo de Entre Ríos.</div>
@@ -269,7 +261,7 @@ async function consultarPronostico(url) {
             html += `</div>`; bPron.innerHTML += html;
         });
         actualizarEstrellaFavorito(ciudadActualCargada);
-    } catch(e){}
+    } catch(e){ console.log("Sincronización de pronóstico pasiva."); }
 }
 
 function activarGeolocalizacionGPS() {
@@ -289,22 +281,23 @@ function activarGeolocalizacionGPS() {
     }
 }
 
+// 🛡️ ENYECTAMOS LOS LISTENERS INDEPENDIENTES DE FORMA SEGURA ARRIBA DE TODO EN EL DOM
 window.addEventListener('DOMContentLoaded', () => {
-    ejecutarConsultasPorNombre(ciudadActualCargada); renderizarMenuFavoritos();
+    enclavarEscuchaTecladoEnter();
+    renderizarMenuFavoritos();
     
+    // Configuración definitiva del botón de búsqueda y favoritos
     document.getElementById('btnBuscar').addEventListener('click', realizarBusquedaMeteorol);
     document.getElementById('btnFav').addEventListener('click', toggleFavorito);
     
     const btnGps = document.getElementById('btnGps');
     if (btnGps) { btnGps.addEventListener('click', activarGeolocalizacionGPS); }
-    
-    // ✅ LLAMADA DE ENCLAVAMIENTO PARA EL INPUT DE LA INTERFAZ
-    enclavarEscuchaTecladoEnter();
 
     const btnCerrarModalError = document.getElementById('btnCerrarModalError');
     const btnConfirmarEditarAlias = document.getElementById('btnConfirmarEditarAlias');
     if (btnConfirmarEditarAlias) { btnConfirmarEditarAlias.addEventListener('click', guardarEdicionFavorito); }
 
+    // Interceptor global de modales por Enter
     window.addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
             const mError = document.getElementById('modalErrorBuscador');
@@ -322,13 +315,36 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     if (btnCerrarModalError) { btnCerrarModalError.addEventListener('click', () => { document.getElementById('modalErrorBuscador').classList.remove('show'); }); }
-    const btnLogo = document.getElementById('btnLogoInfo'); const modalInfo = document.getElementById('modalInfoCorporativo'); const btnCerrarInfo = document.getElementById('btnCerrarModalInfo');
-    if (btnLogo && modalInfo) { btnLogo.addEventListener('click', (e) => { e.preventDefault(); modalInfo.classList.add('show'); registrarClickTelemétrico('Logo - Abrió Información Corporativa'); }); }
+    
+    // 🛠️ REPARADO GLOBAL: El logo corporativo e institucional vuelve a abrir el modal con normalidad
+    const btnLogo = document.getElementById('btnLogoInfo'); 
+    const modalInfo = document.getElementById('modalInfoCorporativo'); 
+    const btnCerrarInfo = document.getElementById('btnCerrarModalInfo');
+    
+    if (btnLogo && modalInfo) { 
+        btnLogo.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            modalInfo.classList.add('show'); 
+            registrarClickTelemétrico('Logo - Abrió Información Corporativa'); 
+        }); 
+    }
     if (btnCerrarInfo && modalInfo) { btnCerrarInfo.addEventListener('click', () => { modalInfo.classList.remove('show'); }); }
+    
     document.getElementById('btnCancelarAlias').addEventListener('click', () => { document.getElementById('modalAgregarAliasFav').classList.remove('show'); });
+    
+    // 🛠️ REPARADO GLOBAL: Confirmar y guardar marcadores favoritos
     document.getElementById('btnConfirmarAlias').addEventListener('click', () => {
         let favs = obtenerFavoritos(); const val = document.getElementById('inputModalAlias').value.trim();
-        if(val) { favs.push({alias: val, busqueda: ciudadActualCargada}); localStorage.setItem(OBTENER_PREFIJO_FAV(), JSON.stringify(favs)); lanzarToast("⭐ Marcador guardado con éxito"); }
-        document.getElementById('modalAgregarAliasFav').classList.remove('show'); renderizarMenuFavoritos(); actualizarEstrellaFavorito(ciudadActualCargada);
+        if(val) { 
+            favs.push({alias: val, busqueda: ciudadActualCargada}); 
+            localStorage.setItem(OBTENER_PREFIJO_FAV(), JSON.stringify(favs)); 
+            lanzarToast("⭐ Marcador guardado con éxito"); 
+        }
+        document.getElementById('modalAgregarAliasFav').classList.remove('show'); 
+        renderizarMenuFavoritos(); 
+        actualizarEstrellaFavorito(ciudadActualCargada);
     });
+
+    // Lanzamos las consultas iniciales controladas
+    ejecutarConsultasPorNombre(ciudadActualCargada);
 });
