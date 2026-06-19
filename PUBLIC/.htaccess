@@ -1,8 +1,0 @@
-RewriteEngine On
-
-# Si el archivo o carpeta física existe en public/, se sirve directamente (ej: estilos, imágenes)
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-
-# Si no existe, se manda todo al index.php
-RewriteRule ^ index.php [L,QSA]
