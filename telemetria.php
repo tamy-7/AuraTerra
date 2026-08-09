@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo = new \PDO("mysql:host=localhost;dbname=auraterra_db;charset=utf8", "root", "");
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         
-        // Estructura perimetral histórica
         $pdo->exec("CREATE TABLE IF NOT EXISTS telemetria_clicks (
             id INT AUTO_INCREMENT PRIMARY KEY,
             usuario VARCHAR(100),
@@ -26,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB;");
 
-        // 📊 REGISTRO DE AUDITORÍA: Guardamos la búsqueda en el registro histórico
         $stmt = $pdo->prepare("INSERT INTO telemetria_clicks (usuario, ip_origen, componente_clickeado, coordenadas) VALUES (?, ?, ?, ?)");
         $stmt->execute([$usuario, $ip, "Buscó Ciudad: " . $ciudadBuscada, $coords]);
         

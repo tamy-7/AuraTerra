@@ -9,10 +9,10 @@ if (function_exists('session_status')) {
         session_start();
     }
 }
-
+//si nada de eso pasa es un intruso asi que le pide que se loguee
 if (!isset($_SESSION['user_id'])) { header('Location: /auraTerraMayo/login'); exit; }
 
-// 🛡️ CONTROL DE SUSPENDIDOS EN MYSQL: Destruye el bucle y los manda al cartel de soporte con el mail corporativo
+//Destruye el bucle y los manda al cartel de soporte con el mail corporativo
 $estadoUsuario = strtolower(trim($_SESSION['user_estado'] ?? 'prueba'));
 if ($estadoUsuario === 'suspendido') {
     $_SESSION = [];
@@ -25,7 +25,6 @@ if ($estadoUsuario === 'suspendido') {
 
 $colorBarra = ($estadoUsuario === 'bajo prueba' || $estadoUsuario === 'prueba') ? "#dd6b20" : "#27ae60";
 $textoLicencia = ($estadoUsuario === 'bajo prueba' || $estadoUsuario === 'prueba') ? "⏳ Periodo de Evaluación Educativo" : "🚀 Licencia Real Activa";
-
 $nombreUsuario = $_SESSION['user_nombre'] ?? 'Usuario';
 $emailUsuario = strtolower(trim($_SESSION['user_email'] ?? 'global'));
 $rolUsuario = strtolower(trim($_SESSION['user_rol'] ?? 'agricultor')); 
@@ -66,7 +65,6 @@ $rolUsuario = strtolower(trim($_SESSION['user_rol'] ?? 'agricultor'));
         .divisor-navegacion-interactivo .flecha-animada { font-size: 1.5rem; animation: bounceFlecha 1.5s infinite; }
         @keyframes bounceFlecha { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
         
-        /* 🚨 CLASES DE MODALES PREMIUM UNIFICADAS */
         .modal-alert-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 41, 59, 0.45); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 999999; }
         .modal-alert-overlay.show { display: flex; }
         .modal-alert-card { background: white; padding: 30px; border-radius: 16px; width: 95%; max-width: 650px; box-shadow: 0 20px 25px rgba(0,0,0,0.15); text-align: left; }
@@ -79,7 +77,6 @@ $rolUsuario = strtolower(trim($_SESSION['user_rol'] ?? 'agricultor'));
     </style>
 </head>
 <body>
-
     <div id="toastApp" class="toast-notificacion"></div>
     <div class="estado-licencia-barra"><?php echo $textoLicencia; ?> — Operador: <?php echo htmlspecialchars($nombreUsuario); ?></div>
 

@@ -1,5 +1,0 @@
-<?php
-return [
-    'api_keys' => ['openweather' => 'DolorDeCabeza1'],  //  'tu_clave_aqui' 
-    'api_urls' => ['openweather' => 'https://api.openweathermap.org/data/2.5/weather'],
-];hnjkl

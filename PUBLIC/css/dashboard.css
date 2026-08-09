@@ -5,7 +5,7 @@
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(44, 62, 80, 0.4); /* Fondo oscuro sutil perimetral */
-    backdrop-filter: blur(6px); /* Desenfoque de vidrio esmerilado espectacular */
+    backdrop-filter: blur(6px); /* Desenfoque de vidrio esmerilado*/
     display: flex;
     justify-content: center;
     align-items: center;

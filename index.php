@@ -44,7 +44,7 @@ class RateLimiter {
 $limiter = new RateLimiter($dirAlmacenamientoLimiter, 8, 10, 60);
 $clientIP = $limiter->getClientIP();
 
-$uri = $_SERVER['REQUEST_URI'] ?? '/';
+$uri = $_SERVER['REQUEST_URI'] ?? '/'; //Le saca lo del error y le deja la url limpia de nuevo
 $path = parse_url($uri, PHP_URL_PATH);
 $path = str_replace(['/auraTerraMayo/public', '/auraTerraMayo'], '', $path);
 $path = '/' . ltrim($path, '/');
@@ -81,7 +81,6 @@ if (!$limiter->check($clientIP) || isset($_GET['error_suspension_manual']) || (i
 $authController = new \Src\Controllers\AuthController();
 $climaController = new \Src\Controllers\ClimaController();
 
-// 🏠 RENDIMIENTO DE LA BIENVENIDA ORIGINAL AL COLOCAR AURATERRAMAYO SOLO
 if ($method === 'GET' && ($path === '/' || $path === '/index.php' || $path === '')) {
     ?>
     <!DOCTYPE html>

@@ -1,18 +1,10 @@
-/**
- * AuraTerra - Sistema de Monitoreo Agroclimatológico
- * Script Maestro del Dashboard - Versión Premium de Producción Final 2026
- */
-
-// 🎨 Definición de colores base para la cuadrícula vertical de 5 días
 const COLORES_BASE_DIAS = ["#f7fafc", "#edf2f7", "#e2e8f0", "#cbd5e0", "#a0aec0"];
 
-let ROL_DE_SESION_ACTIVO_INTERNO = (typeof ROL_DE_SESION_ACTIVO !== 'undefined') ? ROL_DE_SESION_ACTIVO : 'agricultor';
+let ROL_DE_SESION_ACTIVO_INTERNO = (typeof ROL_DE_SESION_ACTIVO !== 'undefined') ? ROL_DE_SESION_ACTIVO : 'agricultor'; //evalua si eciste y sino lo pone como agricultor
 let ciudadActualCargada = "Crespo, Entre Ríos, AR";
-const URL_BASE_SISTEMA = (typeof BASE_URL_PROYECTO !== 'undefined') ? BASE_URL_PROYECTO : '/auraTerraMayo';
+const URL_BASE_SISTEMA = (typeof BASE_URL_PROYECTO !== 'undefined') ? BASE_URL_PROYECTO : '/auraTerraMayo'; //concatena el host actual con la ruta de auraterramayo
 
-/**
- * Registra las interacciones del operador y gestiona el desvío automático si salta el Anti-Bot
- */
+//Registra las interacciones del operador y gestiona el desvío automático si salta el Anti-Bot
 async function registrarClickTelemétrico(componente) {
     try {
         const response = await fetch(`${URL_BASE_SISTEMA}/registrar_click`, {
@@ -34,26 +26,23 @@ const OBTENER_PREFIJO_FAV = () => {
 
 function obtenerFavoritos() { 
     try { 
-        const datosRaw = localStorage.getItem(OBTENER_PREFIJO_FAV());
+        const datosRaw = localStorage.getItem(OBTENER_PREFIJO_FAV()); //alm texto plano 
         if (!datosRaw) return [];
-        return JSON.parse(datosRaw) || [];
-    } catch(e) { return []; }
+        return JSON.parse(datosRaw) || []; 
+    } catch(e) { return []; } 
 }
 
-/**
- * Renderiza el desplegable de marcadores con el stopPropagation reparado en el lápiz
- */
+//Renderiza el desplegable de marcadores con el stopPropagation en el lápiz
 function renderizarMenuFavoritos() {
     const favs = obtenerFavoritos(); 
     const contenedorMenu = document.getElementById('listaFavoritosContent');
     if (!contenedorMenu) return; 
     contenedorMenu.innerHTML = '';
-    
     if (favs.length === 0) { 
         contenedorMenu.innerHTML = '<div style="color:#a0aec0; padding:5px; font-size:0.85rem; font-style:italic;">No hay favoritos</div>'; 
         return; 
     }
-    
+    //Recorre el objeto de la ciudad (f) y su número de posición de índice (idx).
     favs.forEach((f, idx) => {
         contenedorMenu.innerHTML += `
             <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px dashed #edf2f7; gap:8px;">
@@ -66,24 +55,23 @@ function renderizarMenuFavoritos() {
     });
 }
 
-let indiceFavoritoAEditarGlobal = null;
+let indiceFavoritoAEditarGlobal = null; 
 function abrirModalEditarFavorito(event, index) {
-    if (event) event.stopPropagation();
     const favs = obtenerFavoritos();
     if (favs[index]) {
-        indiceFavoritoAEditarGlobal = index;
+        indiceFavoritoAEditarGlobal = index; 
         document.getElementById('inputModalEditarAlias').value = favs[index].alias;
-        document.getElementById('modalEditarAliasFav').classList.add('show');
+        document.getElementById('modalEditarAliasFav').classList.add('show'); 
     }
 }
 
 function guardarEdicionFavorito() {
     if (indiceFavoritoAEditarGlobal !== null) {
         let favs = obtenerFavoritos();
-        const nuevoNombre = document.getElementById('inputModalEditarAlias').value.trim();
+        const nuevoNombre = document.getElementById('inputModalEditarAlias').value.trim(); //elimina todos los espacios en blanco
         if (nuevoNombre) {
             favs[indiceFavoritoAEditarGlobal].alias = nuevoNombre;
-            localStorage.setItem(OBTENER_PREFIJO_FAV(), JSON.stringify(favs));
+            localStorage.setItem(OBTENER_PREFIJO_FAV(), JSON.stringify(favs)); 
             lanzarToast("📝 Marcador actualizado con éxito");
         }
         document.getElementById('modalEditarAliasFav').classList.remove('show');
@@ -112,7 +100,7 @@ function cargarCiudadDesdeFavs(ciudad) {
     document.getElementById('inputCiudad').value = formatearNombreLocalidad(ciudad); 
     registrarClickTelemétrico(`Buscó Ciudad: ${ciudad}`); 
     ejecutarConsultasPorNombre(ciudad); 
-}
+} 
 
 function eliminarFavoritoIndividual(event, ciudad) { 
     event.stopPropagation(); 
@@ -134,9 +122,8 @@ function formatearNombreLocalidad(cadena) {
     let mapeado = partes.map((p, i, a) => {
         let txt = p.trim().toLowerCase();
         if (i === a.length - 1 && txt.length <= 3) return txt.toUpperCase();
-        return txt.replace(/\b\w/g, l => l.toUpperCase());
+        return txt.replace(/\b\w/g, l => l.toUpperCase()); //convierte la primera letra en mayúscula
     });
-    // Limpieza regional para evitar la duplicidad de Paraná en Entre Ríos
     if (mapeado.length === 3 && mapeado[0] === "Paraná" && mapeado[1] === "Paraná") {
         mapeado[1] = "Entre Ríos";
     }
@@ -174,7 +161,6 @@ function realizarBusquedaMeteorol() {
     return false;
 }
 
-// 🛠️ REPARADO: Capturador físico que anula el refresco del navegador antes de validar las comas
 function enclavarEscuchaTecladoEnter() {
     const inputCiudad = document.getElementById('inputCiudad');
     if (inputCiudad) {
@@ -195,9 +181,9 @@ function ejecutarConsultasPorNombre(nombreCiudad) {
 
 async function consultarClimaActual(url) {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url); 
         if (response.status === 429) { window.location.href = `${URL_BASE_SISTEMA}/index.php?error_suspension_manual=1`; return; }
-        const res = await response.json(); const clima = res.data;
+        const res = await response.json(); const clima = res.data; //Deserialización de datos binarios a formato de objeto nativo de JavaScript
         document.getElementById('bloqueActual').innerHTML = `
             <p style="margin:0; font-weight:700; color:#4a5568;">📍 ${formatearNombreLocalidad(clima.ubicacion)}</p>
             <div class="temp-principal" style="font-size:5rem; font-weight:900; color:#1a202c; display:block; margin:5px 0;">${Math.round(clima.temperatura)}°C</div>
@@ -249,7 +235,6 @@ async function consultarPronostico(url) {
         }
         document.getElementById('bloqueAlertas').innerHTML = htmlAlertasUnificadas;
 
-        // 🎪 ENRIQUECIDO: Datos técnicos robustos de siembra y el Tip Diferencial completo recuperados
         const bFiltro = document.getElementById('bloqueFiltroDinamicoRol');
         if (ROL_DE_SESION_ACTIVO_INTERNO === 'planificador') {
             document.getElementById('tituloFiltroDinamicoRol').innerText = "🎪 Planificación Operativa AuraEvents";
@@ -304,10 +289,8 @@ function activarGeolocalizacionGPS() {
     }
 }
 
-/**
- * Enclavamiento y ruteo centralizado de listeners DOM
- */
 window.addEventListener('DOMContentLoaded', () => {
+    //garantiza que ninguna función intente hacer clic en un botón que todavía no se terminó de dibujar en la pantalla.
     enclavarEscuchaTecladoEnter();
     renderizarMenuFavoritos();
     
@@ -340,7 +323,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (btnCerrarModalError) { btnCerrarModalError.addEventListener('click', () => { document.getElementById('modalErrorBuscador').classList.remove('show'); }); }
     
-    // Configuración interactiva del Imagotipo Superior Corporativo
+    
     const btnLogo = document.getElementById('btnLogoInfo'); 
     const modalInfo = document.getElementById('modalInfoCorporativo'); 
     const btnCerrarInfo = document.getElementById('btnCerrarModalInfo');

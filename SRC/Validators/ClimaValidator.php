@@ -17,7 +17,7 @@ class ClimaValidator
         if ($lat !== null) {
             if (!is_numeric($lat)) $errors['lat'] = 'Latitud debe ser un número';
             else {
-                $latFloat = (float)$lat;
+                $latFloat = (float)$lat; 
                 if ($latFloat < -90 || $latFloat > 90) $errors['lat'] = 'Latitud entre -90 y 90';
                 else $data['lat'] = $latFloat;
             }

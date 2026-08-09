@@ -1,5 +1,4 @@
 <?php
-// C:\xampp\htdocs\auraTerraMayo\src\Models\Usuario.php
 
 namespace Models;
 

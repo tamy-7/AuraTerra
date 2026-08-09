@@ -1,11 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * AuraTerra - Script Maestro de Migración de Estructuras DB
- * Versión Autónoma Compatible 2026
- */
-
 $host = 'localhost';
 $db   = 'auraterra_db';
 $user = 'root';
@@ -15,15 +10,14 @@ $charset = 'utf8mb4';
 try {
     $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
     $options = [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Modo de error: Excepciones
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, // Modo de obtención de datos: Asociativo
+        PDO::ATTR_EMULATE_PREPARES   => false, //Desactiva emulación de consultas preparadas
     ];
     
     $pdo = new PDO($dsn, $user, $pass, $options);
     echo "⚡ Conectado a la infraestructura de datos de AuraTerra...<br>";
 
-    // 🛡️ 1. REPARACIÓN / CREACIÓN DE LA TABLA DE USUARIOS
     $sqlUsuarios = "CREATE TABLE IF NOT EXISTS usuarios (
         id INT AUTO_INCREMENT PRIMARY KEY,
         nombre VARCHAR(100) NOT NULL,
@@ -38,7 +32,6 @@ try {
     $pdo->exec($sqlUsuarios);
     echo "✅ Tabla 'usuarios' verificada y sincronizada de forma perimetral.<br>";
 
-    // 🛡️ 2. REPARACIÓN / CREACIÓN DE LA TABLA DE TELEMETRÍA
     $sqlTelemetria = "CREATE TABLE IF NOT EXISTS telemetria_clicks (
         id INT AUTO_INCREMENT PRIMARY KEY,
         usuario VARCHAR(100) NOT NULL,
@@ -50,7 +43,6 @@ try {
     $pdo->exec($sqlTelemetria);
     echo "✅ Tabla 'telemetria_clicks' establecida para auditoría de interacciones.<br>";
 
-    // 🛡️ 3. INYECCIÓN AUTOMÁTICA DEL ADMINISTRADOR DE RESPALDO
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM usuarios WHERE email = 'admin@auraterra.com'");
     $stmt->execute();
     if ((int)$stmt->fetchColumn() === 0) {
@@ -60,7 +52,7 @@ try {
         echo "🚀 Cuenta de rescate administrativo inyectada con éxito (`admin@auraterra.com`).<br>";
     }
 
-    echo "<br>🎉 <b>¡Migración finalizada con éxito absoluto Sol! Sistema operativo.</b>";
+    echo "<br>🎉 <b>¡Migración finalizada con éxito absoluto!</b>";
 
 } catch (PDOException $e) {
     die("<br>❌ Error crítico en los hilos de migración: " . $e->getMessage());

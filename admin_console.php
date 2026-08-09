@@ -30,17 +30,14 @@ if ($sessionSupported) {
     $_SESSION = [];
 }
 
-// 🛡️ CONTROL DE ACCESO ESTRICTO: Bloqueo total si el rol no es exactamente admin
+//Bloqueo total si el rol no es exactamente admin
 $rolUsuario = strtolower(trim($_SESSION['user_rol'] ?? 'agricultor'));
 $emailUsuario = strtolower(trim($_SESSION['user_email'] ?? 'global'));
-
 if (!isset($_SESSION['user_id']) || $rolUsuario !== 'admin') {
     header('Location: /auraTerraMayo/dashboard.php');
     exit;
 }
-
 $nombreUsuario = $_SESSION['user_nombre'] ?? 'Administrador';
-
 try {
     $pdo = new \PDO("mysql:host=localhost;dbname=auraterra_db;charset=utf8", "root", "");
     $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -48,9 +45,7 @@ try {
     die("<div style='font-family:sans-serif; padding:30px; background:#fff5f5; color:#c53030; border-radius:8px; margin:20px; border:1px solid #fed7d7;'><h3>⚠️ Error de Conexión</h3><p>" . $e->getMessage() . "</p></div>"); 
 }
 
-/**
- * 🔄 MÓDULO INTERACTIVO: CAMBIO Y ALTERNANCIA DE ESTADOS DE LICENCIA
- */
+//Cambio de estado de usuario
 if (isset($_GET['cambiar_estado_id'])) {
     $idUsuario = (int)$_GET['cambiar_estado_id'];
     
@@ -60,8 +55,7 @@ if (isset($_GET['cambiar_estado_id'])) {
     
     if ($userActual) {
         $estadoActual = strtolower(trim($userActual['estado']));
-        
-        // Rotación cíclica de estados: prueba -> activo -> suspendido -> prueba
+        // Rotación cíclica de estados prueba -> activo -> suspendido -> prueba
         if ($estadoActual === 'prueba' || $estadoActual === 'bajo prueba') {
             $nuevoEstado = 'activo';
         } elseif ($estadoActual === 'activo' || $estadoActual === 'activado') {
@@ -77,11 +71,9 @@ if (isset($_GET['cambiar_estado_id'])) {
     exit;
 }
 
-// 📊 ADQUISICIÓN DE LOGS Y VECTORES ESTADÍSTICOS REPARADOS
-$usuarios = $pdo->query("SELECT id, nombre, email, rol, estado FROM usuarios ORDER BY id DESC")->fetchAll(\PDO::FETCH_ASSOC);
-
-// ✅ REPARADO: Búsqueda de strings limpia para que la tabla liste el historial telemétrico sin conflictos de emojis
-$telemetria = $pdo->query("SELECT usuario, componente_clickeado, fecha_hora FROM telemetria_clicks ORDER BY id DESC LIMIT 15")->fetchAll(\PDO::FETCH_ASSOC);
+//Adquisicion de logs y vectores estadisticos
+$usuarios = $pdo->query("SELECT id, nombre, email, rol, estado FROM usuarios ORDER BY id DESC")->fetchAll(\PDO::FETCH_ASSOC); 
+$telemetria = $pdo->query("SELECT usuario, componente_clickeado, fecha_hora FROM telemetria_clicks ORDER BY id DESC LIMIT 15")->fetchAll(\PDO::FETCH_ASSOC); //extrae las ultimas 15 filas
 
 $rankingCiudades = $pdo->query("
     SELECT DISTINCT componente_clickeado AS ciudad, COUNT(*) AS total_busquedas
@@ -112,7 +104,6 @@ $rankingCiudades = $pdo->query("
         .badge-prueba { background: #feebc8; color: #744210; }
         .badge-suspendido { background: #fed7d7; color: #9b2c2c; }
         
-        /* ✅ CORREGIDO: Removido el # de white para estabilizar los estilos visuales */
         .btn-toggle { background: white; color: #4a5568; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; border: 1px solid #cbd5e0; transition: all 0.2s; display: inline-block; }
         .btn-toggle:hover { background: #edf2f7; color: #1a202c; border-color: #a0aec0; }
         

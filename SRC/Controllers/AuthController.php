@@ -1,21 +1,19 @@
 <?php
-declare(strict_types=1);
-
+declare(strict_types=1); 
 namespace Src\Controllers;
 
 class AuthController {
     private \PDO $pdo;
-
     public function __construct() {
         $host = 'localhost'; $db = 'auraterra_db'; $user = 'root'; $pass = ''; $charset = 'utf8mb4';
-        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+        $dsn = "mysql:host=$host;dbname=$db;charset=$charset"; 
         $options = [
             \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-            \PDO::ATTR_EMULATE_PREPARES   => false,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC, //cada vez que traigamos registros de la base de datos, PDO los devuelva mapeados en forma de Array Asociativo
+            \PDO::ATTR_EMULATE_PREPARES   => false, //Es la barrera máxima e infranqueable contra ataques de Inyección SQL!
         ];
         try {
-            $this->pdo = new \PDO($dsn, $user, $pass, $options);
+            $this->pdo = new \PDO($dsn, $user, $pass, $options); 
             $this->autoRepararEstructuraDb($this->pdo);
         } catch (\PDOException $e) {
             die("Error crítico de datos: " . $e->getMessage());
@@ -27,7 +25,7 @@ class AuthController {
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM usuarios WHERE email = 'admin@auraterra.com'");
             $stmt->execute();
             if ((int)$stmt->fetchColumn() === 0) {
-                $passHash = password_hash('Admin123!', PASSWORD_DEFAULT);
+                $passHash = password_hash('Admin123!', PASSWORD_DEFAULT); //60 caracteres
                 $stmtInsert = $pdo->prepare("INSERT INTO usuarios (nombre, email, password, rol, estado) VALUES ('Administradores', 'admin@auraterra.com', ?, 'admin', 'activo')");
                 $stmtInsert->execute([$passHash]);
             }
@@ -188,12 +186,12 @@ class AuthController {
 
     public function handleOpenRegisterPost(): void {
         $nombre = trim($_POST['nombre'] ?? ''); $email = trim($_POST['email'] ?? ''); $password = $_POST['password'] ?? ''; $rol = $_POST['rol'] ?? 'agricultor';
+
         try {
             $passHash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $this->pdo->prepare("INSERT INTO usuarios (nombre, email, password, rol, estado) VALUES (?, ?, ?, ?, 'prueba')");
             $stmt->execute([$nombre, $email, $passHash, $rol]);
             
-            // 🚀 REPARADO: Pantalla intermedia de registro exitoso antes de mandarlo a loguearse
             ?>
             <!DOCTYPE html>
             <html lang="es">
@@ -220,7 +218,7 @@ class AuthController {
             exit;
         } catch (\PDOException $e) { header('Location: /auraTerraMayo/register?err=1'); exit; }
     }
-
+    
     public function handleLoginPost(): void {
         $email = trim($_POST['email'] ?? ''); $password = $_POST['password'] ?? '';
         $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE email = ?"); $stmt->execute([$email]); $user = $stmt->fetch();
